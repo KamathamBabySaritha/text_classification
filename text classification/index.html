@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fake News Detector - Fake News Themed</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="overlay">
+    <div class="detector-card">
+        <h1>📰 Fake News Detector</h1>
+        <p>Enter the article text below and find out if it's fake or real.</p>
+        <textarea id="newsInput" placeholder="Paste news article here..."></textarea>
+        <button onclick="checkNews()">Check News</button>
+        <div id="result" class="result"></div>
+    </div>
+</div>
+
+<script>
+    async function checkNews() {
+        const newsText = document.getElementById('newsInput').value;
+        const resultElement = document.getElementById('result');
+
+        if (newsText.trim() === '') {
+            resultElement.textContent = '⚠ Please enter some text.';
+            resultElement.className = 'result error';
+            return;
+        }
+
+        resultElement.textContent = '⏳ Checking...';
+        resultElement.className = 'result';
+
+        try {
+            const response = await fetch('http://localhost:5000/predict', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: newsText })
+            });
+
+            const data = await response.json();
+            if (data.result === 'Fake') {
+                resultElement.textContent = '🚨 Fake News Detected!';
+                resultElement.className = 'result fake';
+            } else {
+                resultElement.textContent = '✅ Real News Confirmed!';
+                resultElement.className = 'result real';
+            }
+        } catch (error) {
+            resultElement.textContent = '⚠ Error connecting to server.';
+            resultElement.className = 'result error';
+        }
+    }
+</script>
+
+</body>
+</html>
